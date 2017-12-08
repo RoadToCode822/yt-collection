@@ -15,26 +15,41 @@ YT.setKey('AIzaSyDbpr3FzddtbOLSpaZaCMMqNzV2IutIx2Y')
 /* GET home page. */
 router.get('/', function(req, res, next) {
   req.db.collection('YT-videos').find().toArray(function(err, results) {
-    var ytData = {}
+    console.log(results);
+    res.render('index', { ytPP: results });
+    /*
+
     YT.getById('pU9Q6oiQNd0', function(err, YTres) {
       if (err) console.log(err)
-      ytData = YTres
-      return ytData
-    })
-    console.log(ytData)
-    return res.render('index', { ytPP: results, ytData: req.ytData });
+      ytData = YTres.items[0];
+      return res.render('index', { ytPP: results, ytData });
+    })    
+    */
   })
 });
 
 router.post('/puzzles/PPs/add', function(req, res, next) {
-  const db = req.db;  
-  db.collection('YT-videos').save(req.body, (err, result) => {
-    if (err) return console.log(err)
-    
-    console.log('Saved to database')
-    
-    return res.redirect('/');
+  const db = req.db;
+  const ytURL = req.body.ytURL;
+
+  //Take the id out of the youtube URL
+
+  
+  YT.getById('pU9Q6oiQNd0', function(err, YTres) {
+      if (err) console.log(err)
+
+      const ytData = YTres.items[0];
+      console.log(ytData);
+      req.body.thumb = ytData.snippet.thumbnails.default.url;
+      console.log(req.body.thumb);
+      
+      db.collection('YT-videos').save(req.body, (err, result) => {
+        if (err) return console.log(err)
+        console.log('Saved to database')
+        return res.redirect('/');
   })
+    })    
+  
 });
 
 module.exports = router;
